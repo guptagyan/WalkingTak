@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEase - Online Shopping</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-logo animate-slide-in">
+            <a href="#"><img src="{% static 'images/logo.png' %}" alt="ShopEase Logo"></a>
+        </div>
+        
+        <div class="nav-search animate-fade-in">
+            <select class="search-select">
+                <option>All</option>
+                <option>Electronics</option>
+                <option>Fashion</option>
+                <option>Home & Kitchen</option>
+            </select>
+            <input type="text" class="search-input" placeholder="Search for products...">
+            <button class="search-button"><i class="fas fa-search"></i></button>
+        </div>
+        
+        <div class="nav-items animate-slide-in">
+            <div class="nav-item">
+                <a href="#"><i class="fas fa-user"></i> <span>Account</span></a>
+            </div>
+            <div class="nav-item">
+                <a href="#"><i class="fas fa-heart"></i> <span>Wishlist</span></a>
+            </div>
+            <div class="nav-item cart">
+                <a href="#"><i class="fas fa-shopping-cart"></i> <span>Cart</span> <span class="cart-count">0</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="hero animate-fade-in">
+        <div class="hero-content">
+            <h1>Summer Sale Up to 50% Off</h1>
+            <p>Shop the latest trends in fashion, electronics, and more</p>
+            <button class="btn-primary">Shop Now</button>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories">
+        <h2 class="section-title animate-slide-up">Shop by Category</h2>
+        <div class="category-grid">
+            <div class="category-card animate-slide-up" style="animation-delay: 0.1s">
+                <img src="{% static 'images/electronics.jpg' %}" alt="Electronics">
+                <h3>Electronics</h3>
+            </div>
+            <div class="category-card animate-slide-up" style="animation-delay: 0.2s">
+                <img src="{% static 'images/fashion.jpg' %}" alt="Fashion">
+                <h3>Fashion</h3>
+            </div>
+            <div class="category-card animate-slide-up" style="animation-delay: 0.3s">
+                <img src="{% static 'images/home.jpg' %}" alt="Home & Kitchen">
+                <h3>Home & Kitchen</h3>
+            </div>
+            <div class="category-card animate-slide-up" style="animation-delay: 0.4s">
+                <img src="{% static 'images/beauty.jpg' %}" alt="Beauty">
+                <h3>Beauty</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="featured-products">
+        <h2 class="section-title animate-slide-up">Featured Products</h2>
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="product-card animate-slide-up" >
+                <div class="product-badge">{{ product.badge }}</div>
+                <div class="product-image">
+                    <img src="{% static product.image %}" alt="{{ product.name }}">
+                    <div class="product-actions">
+                        <button class="quick-view"><i class="fas fa-eye"></i></button>
+                        <button class="add-wishlist"><i class="fas fa-heart"></i></button>
+                        <button class="add-cart"><i class="fas fa-shopping-cart"></i></button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <div class="product-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= product.rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span>({{ product.reviews }})</span>
+                    </div>
+                    <div class="product-price">
+                        <span class="current-price">${{ product.price }}</span>
+                        {% if product.old_price %}
+                        <span class="old-price">${{ product.old_price }}</span>
+                        {% endif %}
+                    </div>
+                    <button class="btn-secondary">Add to Cart</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Deals Section -->
+    <section class="deals animate-fade-in">
+        <div class="deal-content">
+            <h2>Deal of the Day</h2>
+            <h3>Smartphone X Pro</h3>
+            <p>Get 30% off on the latest smartphone</p>
+            <div class="deal-timer">
+                <div class="timer-box">
+                    <span id="hours">12</span>
+                    <span>Hours</span>
+                </div>
+                <div class="timer-box">
+                    <span id="minutes">45</span>
+                    <span>Minutes</span>
+                </div>
+                <div class="timer-box">
+                    <span id="seconds">30</span>
+                    <span>Seconds</span>
+                </div>
+            </div>
+            <button class="btn-primary">Shop Now</button>
+        </div>
+        <div class="deal-image">
+            <img src="{% static 'images/deal-product.png' %}" alt="Deal of the Day">
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <h2 class="section-title animate-slide-up">What Our Customers Say</h2>
+        <div class="testimonial-slider">
+            <div class="testimonial-card animate-slide-up" style="animation-delay: 0.1s">
+                <div class="testimonial-content">
+                    <i class="fas fa-quote-left"></i>
+                    <p>Great products and fast delivery! I'm very satisfied with my purchase.</p>
+                    <div class="testimonial-author">
+                        <img src="{% static 'images/customer1.jpg' %}" alt="Customer">
+                        <div>
+                            <h4>John Doe</h4>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card animate-slide-up" style="animation-delay: 0.2s">
+                <div class="testimonial-content">
+                    <i class="fas fa-quote-left"></i>
+                    <p>Excellent customer service. They helped me with my issue immediately.</p>
+                    <div class="testimonial-author">
+                        <img src="{% static 'images/customer2.jpg' %}" alt="Customer">
+                        <div>
+                            <h4>Jane Smith</h4>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter animate-fade-in">
+        <div class="newsletter-content">
+            <h2>Subscribe to Our Newsletter</h2>
+            <p>Get the latest updates on new products and upcoming sales</p>
+            <div class="newsletter-form">
+                <input type="email" placeholder="Enter your email address">
+                <button class="btn-primary">Subscribe</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <h3>ShopEase</h3>
+                <p>Your one-stop shop for all your needs. Quality products at affordable prices.</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Customer Service</h3>
+                <ul>
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="#">Order Tracking</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="#">Customer Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> 123 Main Street, City, Country</li>
+                    <li><i class="fas fa-phone"></i> +1 234 567 890</li>
+                    <li><i class="fas fa-envelope"></i> info@shopease.com</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} ShopEase. All Rights Reserved.</p>
+            <div class="payment-methods">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-paypal"></i>
+                <i class="fab fa-cc-apple-pay"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="animate-fade-in"><i class="fas fa-arrow-up"></i></button>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <a href="#"><i class="fas fa-home"></i></a>
+        <a href="#"><i class="fas fa-search"></i></a>
+        <a href="#"><i class="fas fa-heart"></i></a>
+        <a href="#"><i class="fas fa-shopping-cart"></i></a>
+        <a href="#"><i class="fas fa-user"></i></a>
+    </div>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="product-list-header">
+    <div class="container">
+        <h1>
+            {% if category %}
+                {{ category.name }}
+            {% else %}
+                Products
+            {% endif %}
+        </h1>
+        
+        <div class="product-list-options">
+            <div class="search-box">
+                <form method="get" action=".">
+                    <input type="text" name="search" placeholder="Search products..." value="{{ search_query }}">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            
+            <div class="sort-options">
+                <span>Sort by:</span>
+                <select onchange="window.location.href=this.value">
+                    <option value="?sort_by=created{% if search_query %}&search={{ search_query }}{% endif %}" {% if sort_by == 'created' %}selected{% endif %}>Newest</option>
+                    <option value="?sort_by=price_asc{% if search_query %}&search={{ search_query }}{% endif %}" {% if sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="?sort_by=price_desc{% if search_query %}&search={{ search_query }}{% endif %}" {% if sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="?sort_by=name{% if search_query %}&search={{ search_query }}{% endif %}" {% if sort_by == 'name' %}selected{% endif %}>Name</option>
+                    <option value="?sort_by=popularity{% if search_query %}&search={{ search_query }}{% endif %}" {% if sort_by == 'popularity' %}selected{% endif %}>Popularity</option>
+                    <option value="?sort_by=rating{% if search_query %}&search={{ search_query }}{% endif %}" {% if sort_by == 'rating' %}selected{% endif %}>Rating</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="product-list-container">
+    <div class="container">
+        <div class="sidebar">
+            <h3>Categories</h3>
+            <ul class="category-list">
+                <li {% if not category %}class="active"{% endif %}>
+                    <a href="{% url 'product_list' %}">All Products</a>
+                </li>
+                {% for cat in categories %}
+                <li {% if category.slug == cat.slug %}class="active"{% endif %}>
+                    <a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            
+            <h3>Filters</h3>
+            <!-- Add filter options here -->
+        </div>
+        
+        <div class="product-grid">
+            {% if products %}
+                {% for product in products %}
+                    {% include 'store/product/product_card.html' %}
+                {% endfor %}
+            {% else %}
+                <div class="no-results">
+                    <p>No products found matching your search.</p>
+                    <a href="{% url 'product_list' %}" class="btn btn-primary">View All Products</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if products.has_other_pages %}
+<div class="pagination">
+    <div class="container">
+        <ul>
+            {% if products.has_previous %}
+                <li><a href="?page={{ products.previous_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">&laquo;</a></li>
+            {% else %}
+                <li class="disabled"><span>&laquo;</span></li>
+            {% endif %}
+            
+            {% for i in products.paginator.page_range %}
+                {% if products.number == i %}
+                    <li class="active"><span>{{ i }}</span></li>
+                {% else %}
+                    <li><a href="?page={{ i }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if products.has_next %}
+                <li><a href="?page={{ products.next_page_number }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">&raquo;</a></li>
+            {% else %}
+                <li class="disabled"><span>&raquo;</span></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

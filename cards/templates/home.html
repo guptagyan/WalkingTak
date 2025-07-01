@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-background"></div>
+    <div class="hero-content">
+        <h1 class="hero-title">Summer Sale Up to 50% Off</h1>
+        <p class="hero-subtitle">Shop the latest trends in fashion, electronics, and more</p>
+        <button class="btn-primary hero-cta">Shop Now</button>
+    </div>
+
+    <!-- Animated decorative elements -->
+    <div class="hero-shape shape-1"></div>
+    <div class="hero-shape shape-2"></div>
+    <div class="hero-shape shape-3"></div>
+</section>
+
+<!-- Categories -->
+<section class="categories">
+    <h2 class="section-title animate-slide-up">Shop by Category</h2>
+    <div class="category-grid">
+        <!-- Electronics -->
+        <a href="{% url 'product_list_by_category' 'electronics' %}" class="category-card animate-slide-up"
+            style="animation-delay: 0.1s">
+            <div class="category-image-container">
+                <img src="{% static 'images/electronices.jpg' %}" alt="Electronics" class="category-image">
+            </div>
+            <div class="category-info">
+                <h3>Electronics</h3>
+                <span class="shop-now">Shop Now <i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <!-- Fashion -->
+        <a href="{% url 'product_list_by_category' 'fashion' %}" class="category-card animate-slide-up"
+            style="animation-delay: 0.2s">
+            <div class="category-image-container">
+                <img src="{% static 'images/fashion.jpg' %}" alt="Fashion" class="category-image">
+            </div>
+            <div class="category-info">
+                <h3>Fashion</h3>
+                <span class="shop-now">Shop Now <i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <!-- Home & Kitchen -->
+        <a href="{% url 'product_list_by_category' 'home-kitchen' %}" class="category-card animate-slide-up"
+            style="animation-delay: 0.3s">
+            <div class="category-image-container">
+                <img src="{% static 'images/home.jpg' %}" alt="Home & Kitchen" class="category-image">
+            </div>
+            <div class="category-info">
+                <h3>Home & Kitchen</h3>
+                <span class="shop-now">Shop Now <i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <!-- Beauty -->
+        <a href="{% url 'product_list_by_category' 'beauty' %}" class="category-card animate-slide-up"
+            style="animation-delay: 0.4s">
+            <div class="category-image-container">
+                <img src="{% static 'images/beauty.jpg' %}" alt="Beauty" class="category-image">
+            </div>
+            <div class="category-info">
+                <h3>Beauty</h3>
+                <span class="shop-now">Shop Now <i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="featured-products">
+    <div class="container">
+        <h2 class="section-title animate-slide-up">Featured Products</h2>
+        <div class="product-grid">
+            {% for product in featured_products %}
+            <div class="product-card animate-slide-up">
+                {% if product.discount %}
+                <div class="product-badge">-{{ product.discount }}%</div>
+                {% endif %}
+
+                <div class="product-image">
+                    <a href="{{ product.get_absolute_url }}">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
+                    </a>
+                    <div class="product-actions">
+                        <button class="quick-view" data-product-id="{{ product.id }}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <form action="{% url 'add_to_wishlist' product.id %}" method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="add-wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </form>
+                        <form action="{% url 'add_to_cart' product.id %}" method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="add-cart">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="product-info">
+                    <h3><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+
+                    <div class="product-rating">
+                        {% with rating=product.get_average_rating %}
+                        {% for i in "12345" %}
+                        {% if forloop.counter <= rating %} <i class="fas fa-star"></i>
+                            {% else %}
+                            <i class="far fa-star"></i>
+                            {% endif %}
+                            {% endfor %}
+                            <span>({{ product.reviews.count }})</span>
+                            {% endwith %}
+                    </div>
+
+                    <div class="product-price">
+                        <span class="current-price">${{ product.price }}</span>
+                        {% if product.old_price %}
+                        <span class="old-price">${{ product.old_price }}</span>
+                        {% endif %}
+                    </div>
+
+                    <form action="{% url 'add_to_cart' product.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary w-100">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p>No featured products available</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Deals Section with Image Slider -->
+<section class="deals animate-fade-in">
+    <div class="deal-content">
+        <h2>Deal of the Day</h2>
+        <h3>Smartphone X Pro</h3>
+        <p>Get 30% off on the latest smartphone</p>
+        <div class="deal-timer">
+            <div class="timer-box">
+                <span id="hours">12</span>
+                <span>Hours</span>
+            </div>
+            <div class="timer-box">
+                <span id="minutes">45</span>
+                <span>Minutes</span>
+            </div>
+            <div class="timer-box">
+                <span id="seconds">30</span>
+                <span>Seconds</span>
+            </div>
+        </div>
+        <button class="btn-primary">Shop Now</button>
+    </div>
+    <div class="deal-image-slider">
+        <div class="slider-container">
+            <img src="{% static 'images/bigsale1.jpg' %}" alt="Deal 1" class="active">
+            <img src="{% static 'images/bigsale2.jpg' %}" alt="Deal 2">
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials">
+    <h2 class="section-title animate-slide-up">What Our Customers Say</h2>
+    <div class="testimonial-slider">
+        <div class="testimonial-card animate-slide-up" style="animation-delay: 0.1s">
+            <div class="testimonial-content">
+                <i class="fas fa-quote-left"></i>
+                <p>Great products and fast delivery! I'm very satisfied with my purchase.</p>
+                <div class="testimonial-author">
+                    <img src="{% static 'images/customer1.jpg' %}" alt="Customer">
+                    <div>
+                        <h4>John Doe</h4>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-card animate-slide-up" style="animation-delay: 0.2s">
+            <div class="testimonial-content">
+                <i class="fas fa-quote-left"></i>
+                <p>Excellent customer service. They helped me with my issue immediately.</p>
+                <div class="testimonial-author">
+                    <img src="{% static 'images/customer2.jpg' %}" alt="Customer">
+                    <div>
+                        <h4>Jane Smith</h4>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter animate-fade-in">
+    <div class="newsletter-content">
+        <h2>Subscribe to Our Newsletter</h2>
+        <p>Get the latest updates on new products and upcoming sales</p>
+        <div class="newsletter-form">
+            <input type="email" placeholder="Enter your email address">
+            <button class="btn-primary">Subscribe</button>
+        </div>
+    </div>
+</section>
+<script>
+document.querySelector('.add-to-cart-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update cart count or show message
+        console.log('Item added to cart');
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Shopping Cart - {{ site_name }}{% endblock %}
+
+
+{% block content %}
+<div class="cart-container">
+    <div class="cart-header">
+        <h1>Your Shopping Cart</h1>
+        <p class="item-count">{{ cart_items|length }} item(s) in cart</p>
+    </div>
+
+    <div class="cart-items">
+        {% for item in cart_items %}
+        <div class="cart-item" data-item-id="{{ item.id }}">
+            <div class="product-image">
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+            </div>
+            
+            <div class="product-details">
+                <h3>{{ item.product.name }}</h3>
+                <p class="product-category">{{ item.product.category.name }}</p>
+                
+                <div class="product-price">
+                    <span class="current-price">₹{{ item.product.price }}</span>
+                    {% if item.product.old_price %}
+                    <span class="old-price">₹{{ item.product.old_price }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="quantity-controls">
+                    <button class="quantity-btn minus" data-action="decrease">-</button>
+                    <span class="quantity">{{ item.quantity }}</span>
+                    <button class="quantity-btn plus" data-action="increase">+</button>
+                </div>
+            </div>
+            
+            <div class="item-actions">
+                <button class="remove-btn">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+                <div class="item-total">
+                    ₹{{ item.product.price|floatformat:2 }} × {{ item.quantity }} = ₹{% widthratio item.product.price 1 item.quantity %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-cart">
+            <i class="fas fa-shopping-cart"></i>
+            <p>Your cart is empty</p>
+            <a href="{% url 'product_list' %}" class="continue-shopping">Continue Shopping</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if cart_items %}
+    <div class="cart-summary">
+        <div class="summary-details">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="cart-subtotal">₹{{ subtotal|floatformat:2 }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span id="cart-shipping">{% if shipping == 0 %}Free{% else %}₹{{ shipping|floatformat:2 }}{% endif %}</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="cart-total">₹{{ total|floatformat:2 }}</span>
+            </div>
+        </div>
+        
+        <div class="checkout-actions">
+            <a href="{% url 'product_list' %}" class="continue-shopping">
+                <i class="fas fa-arrow-left"></i> Continue Shopping
+            </a>
+            <a href="{% url 'checkout' %}" class="checkout-btn">
+                Proceed to Checkout <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get CSRF token from cookie
+    function getCSRFToken() {
+        const csrfCookie = document.cookie.split('; ')
+            .find(row => row.startsWith('csrftoken='));
+        return csrfCookie ? csrfCookie.split('=')[1] : null;
+    }
+
+    // Generic AJAX error handler
+    function handleAjaxError(error) {
+        console.error('AJAX Error:', error);
+        alert('An error occurred. Please try again.');
+    }
+
+    // Update quantity function
+    function updateQuantity(itemId, action) {
+        const formData = new FormData();
+        formData.append('action', action);
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
+
+        return fetch(`/cart/update/${itemId}/`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        });
+    }
+
+    // Remove item function
+    function removeItem(itemId) {
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
+
+        return fetch(`/cart/remove/${itemId}/`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        });
+    }
+
+    // Quantity button handlers
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const cartItem = this.closest('.cart-item');
+            const itemId = cartItem.dataset.itemId;
+            const action = this.dataset.action;
+            
+            try {
+                const data = await updateQuantity(itemId, action);
+                
+                if (data.success) {
+                    // Update quantity display
+                    const quantityElement = cartItem.querySelector('.quantity');
+                    quantityElement.textContent = data.quantity;
+                    
+                    // Update item total
+                    const itemTotalElement = cartItem.querySelector('.item-total');
+                    const price = parseFloat(data.item_total).toFixed(2);
+                    itemTotalElement.textContent = `₹${data.item_price} × ${data.quantity} = ₹${price}`;
+                    
+                    // Update cart totals
+                    document.querySelector('.item-count').textContent = 
+                        `${data.cart_count} item(s) in cart`;
+                    document.getElementById('cart-subtotal').textContent = `₹${parseFloat(data.subtotal).toFixed(2)}`;
+                    document.getElementById('cart-shipping').textContent = 
+                        data.shipping === 0 ? 'Free' : `₹${parseFloat(data.shipping).toFixed(2)}`;
+                    document.getElementById('cart-total').textContent = `₹${parseFloat(data.total).toFixed(2)}`;
+                }
+            } catch (error) {
+                handleAjaxError(error);
+            }
+        });
+    });
+
+    // Remove button handlers
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const cartItem = this.closest('.cart-item');
+            const itemId = cartItem.dataset.itemId;
+            
+            if (confirm('Are you sure you want to remove this item from your cart?')) {
+                try {
+                    const data = await removeItem(itemId);
+                    
+                    if (data.success) {
+                        cartItem.remove();
+                        
+                        // Update cart count
+                        document.querySelector('.item-count').textContent = 
+                            `${data.cart_count} item(s) in cart`;
+                        
+                        // Check if cart is empty
+                        if (data.cart_count === 0) {
+                            document.querySelector('.cart-items').innerHTML = `
+                                <div class="empty-cart">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <p>Your cart is empty</p>
+                                    <a href="{% url 'product_list' %}" class="continue-shopping">Continue Shopping</a>
+                                </div>
+                            `;
+                            document.querySelector('.cart-summary').remove();
+                        } else {
+                            // Update totals
+                            document.getElementById('cart-subtotal').textContent = `₹${parseFloat(data.subtotal).toFixed(2)}`;
+                            document.getElementById('cart-shipping').textContent = 
+                                data.shipping === 0 ? 'Free' : `₹${parseFloat(data.shipping).toFixed(2)}`;
+                            document.getElementById('cart-total').textContent = `₹${parseFloat(data.total).toFixed(2)}`;
+                        }
+                    }
+                } catch (error) {
+                    handleAjaxError(error);
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

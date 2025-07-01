@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="container">
+        <div class="checkout-steps">
+            <div class="step active">
+                <span>1</span>
+                <span>Shipping</span>
+            </div>
+            <div class="step">
+                <span>2</span>
+                <span>Payment</span>
+            </div>
+            <div class="step">
+                <span>3</span>
+                <span>Confirmation</span>
+            </div>
+        </div>
+        
+        <div class="checkout-content">
+            <div class="checkout-form">
+                <h2>Shipping Information</h2>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.first_name.label_tag }}
+                            {{ form.first_name }}
+                            {{ form.first_name.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.last_name.label_tag }}
+                            {{ form.last_name }}
+                            {{ form.last_name.errors }}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.email.label_tag }}
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.address.label_tag }}
+                        {{ form.address }}
+                        {{ form.address.errors }}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.city.label_tag }}
+                            {{ form.city }}
+                            {{ form.city.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.postal_code.label_tag }}
+                            {{ form.postal_code }}
+                            {{ form.postal_code.errors }}
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.country.label_tag }}
+                            {{ form.country }}
+                            {{ form.country.errors }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.phone.label_tag }}
+                            {{ form.phone }}
+                            {{ form.phone.errors }}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group checkbox">
+                        <label>
+                            {{ form.save_info }}
+                            Save this information for next time
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{% url 'cart_detail' %}" class="btn btn-outline">
+                            Back to Cart
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Continue to Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="checkout-summary">
+                <h2>Order Summary</h2>
+                
+                <div class="order-items">
+                    {% for item in cart %}
+                    <div class="order-item">
+                        <div class="item-image">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        </div>
+                        <div class="item-details">
+                            <h4>{{ item.product.name }}</h4>
+                            <div class="item-meta">
+                                <span>${{ item.price }}</span>
+                                <span>x {{ item.quantity }}</span>
+                                <span>${{ item.total_price }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="summary-totals">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>${{ cart.get_total_price }}</span>
+                    </div>
+                    
+                    {% if cart.coupon %}
+                    <div class="summary-row discount">
+                        <span>Discount ({{ cart.coupon.code }})</span>
+                        <span>-${{ cart.get_discount|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span>Free</span>
+                    </div>
+                    
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>${{ cart.get_total_price_after_discount|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

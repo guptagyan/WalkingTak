@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="order-detail-container">
+    <div class="container">
+        <div class="order-header">
+            <h1>Order #{{ order.id }}</h1>
+            <div class="order-status">
+                <span class="badge {{ order.status }}">{{ order.get_status_display }}</span>
+                <span class="order-date">Placed on {{ order.created|date:"F j, Y" }}</span>
+            </div>
+        </div>
+        
+        <div class="order-content">
+            <div class="order-details">
+                <div class="order-section">
+                    <h2>Order Summary</h2>
+                    <table class="order-summary">
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td class="product-info">
+                                <div class="product-image">
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                                </div>
+                                <div class="product-details">
+                                    <h3>{{ item.product.name }}</h3>
+                                    <div class="product-meta">
+                                        <span>${{ item.price }}</span>
+                                        <span>x {{ item.quantity }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="product-total">
+                                ${{ item.get_cost }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        
+                        <tr class="subtotal">
+                            <td>Subtotal</td>
+                            <td>${{ order.get_total_cost }}</td>
+                        </tr>
+                        
+                        {% if order.coupon %}
+                        <tr class="discount">
+                            <td>Discount ({{ order.coupon.code }})</td>
+                            <td>-${{ order.discount }}</td>
+                        </tr>
+                        {% endif %}
+                        
+                        <tr class="shipping">
+                            <td>Shipping</td>
+                            <td>Free</td>
+                        </tr>
+                        
+                        <tr class="total">
+                            <td>Total</td>
+                            <td>${{ order.get_total_cost_after_discount }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="order-section">
+                    <h2>Shipping Information</h2>
+                    <div class="shipping-info">
+                        <p>{{ order.first_name }} {{ order.last_name }}</p>
+                        <p>{{ order.address }}</p>
+                        <p>{{ order.city }}, {{ order.postal_code }}</p>
+                        <p>{{ order.country }}</p>
+                        <p>Phone: {{ order.phone }}</p>
+                        <p>Email: {{ order.email }}</p>
+                    </div>
+                </div>
+                
+                <div class="order-section">
+                    <h2>Payment Method</h2>
+                    <div class="payment-info">
+                        <p>{{ order.get_payment_method_display }}</p>
+                        {% if order.paid %}
+                        <p class="paid">Paid on {{ order.payment_date|date:"F j, Y" }}</p>
+                        {% else %}
+                        <p class="not-paid">Not paid yet</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-actions">
+                <a href="{% url 'order_list' %}" class="btn btn-outline">
+                    Back to Orders
+                </a>
+                
+                {% if not order.paid and order.payment_method == 'online' %}
+                <button class="btn btn-primary" id="pay-now" data-order-id="{{ order.id }}">
+                    Pay Now
+                </button>
+                {% endif %}
+                
+                {% if order.status == 'processing' %}
+                <button class="btn btn-outline" id="cancel-order" data-order-id="{{ order.id }}">
+                    Cancel Order
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if not order.paid and order.payment_method == 'online' %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+$(document).ready(function() {
+    const stripe = Stripe('{{ stripe_public_key }}');
+    const payButton = $('#pay-now');
+    
+    payButton.click(function() {
+        payButton.prop('disabled', true);
+        payButton.text('Processing...');
+        
+        fetch('{% url "payment_process" order.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(session => {
+            return stripe.redirectToCheckout({ sessionId: session.id });
+        })
+        .then(result => {
+            if (result.error) {
+                alert(result.error.message);
+                payButton.prop('disabled', false);
+                payButton.text('Pay Now');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            payButton.prop('disabled', false);
+            payButton.text('Pay Now');
+        });
+    });
+});
+</script>
+{% endif %}
+
+{% if order.status == 'processing' %}
+<script>
+$(document).ready(function() {
+    $('#cancel-order').click(function() {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            const orderId = $(this).data('order-id');
+            
+            $.ajax({
+                url: '{% url "order_cancel" %}',
+                method: 'POST',
+                data: {
+                    order_id: orderId,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function() {
+                    location.reload();
+                }
+            });
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

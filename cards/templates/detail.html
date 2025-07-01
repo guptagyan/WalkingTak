@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="cart-container">
+    <div class="container">
+        <h1>Shopping Cart</h1>
+        
+        {% if cart %}
+        <div class="cart-content">
+            <div class="cart-items">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart %}
+                        {% with product=item.product %}
+                        <tr>
+                            <td class="product-info">
+                                <div class="product-image">
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                </div>
+                                <div class="product-details">
+                                    <h3><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+                                    {% if product.stock < item.quantity %}
+                                    <div class="stock-warning">
+                                        Only {{ product.stock }} available
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="product-price">${{ item.price }}</td>
+                            <td class="product-quantity">
+                                <form class="update-quantity" data-product-id="{{ product.id }}">
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ product.stock }}">
+                                    <button type="submit" class="btn btn-sm">Update</button>
+                                </form>
+                            </td>
+                            <td class="product-total">${{ item.total_price }}</td>
+                            <td class="product-remove">
+                                <form class="remove-from-cart" data-product-id="{{ product.id }}">
+                                    <button type="submit" class="btn btn-link">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <div class="cart-actions">
+                    <a href="{% url 'product_list' %}" class="btn btn-outline">
+                        Continue Shopping
+                    </a>
+                    <button class="btn btn-outline clear-cart">
+                        Clear Cart
+                    </button>
+                </div>
+            </div>
+            
+            <div class="cart-summary">
+                <h2>Order Summary</h2>
+                
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>${{ cart.get_total_price }}</span>
+                </div>
+                
+                {% if cart.coupon %}
+                <div class="summary-row discount">
+                    <span>Discount ({{ cart.coupon.code }})</span>
+                    <span>-${{ cart.get_discount|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span>${{ cart.get_total_price_after_discount|floatformat:2 }}</span>
+                </div>
+                
+                {% if not cart.coupon %}
+                <div class="coupon-form">
+                    <h3>Have a Coupon?</h3>
+                    <form method="post" action="{% url 'coupon_apply' %}">
+                        {% csrf_token %}
+                        {{ coupon_apply_form.code }}
+                        <button type="submit" class="btn btn-primary">Apply</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="coupon-applied">
+                    <span>Coupon applied: {{ cart.coupon.code }}</span>
+                    <a href="{% url 'coupon_remove' %}" class="remove-coupon">
+                        Remove
+                    </a>
+                </div>
+                {% endif %}
+                
+                <a href="{% url 'checkout' %}" class="btn btn-primary btn-block checkout-btn">
+                    Proceed to Checkout
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-cart">
+            <i class="fas fa-shopping-cart"></i>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added anything to your cart yet</p>
+            <a href="{% url 'product_list' %}" class="btn btn-primary">Continue Shopping</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Update quantity
+    $('.update-quantity').submit(function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const productId = form.data('product-id');
+        const quantity = form.find('input[name="quantity"]').val();
+        
+        $.ajax({
+            url: '{% url "cart_add" %}',
+            method: 'POST',
+            data: {
+                product_id: productId,
+                quantity: quantity,
+                override_quantity: true,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function() {
+                location.reload();
+            }
+        });
+    });
+    
+    // Remove from cart
+    $('.remove-from-cart').submit(function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const productId = form.data('product-id');
+        
+        $.ajax({
+            url: '{% url "cart_remove" %}',
+            method: 'POST',
+            data: {
+                product_id: productId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function() {
+                location.reload();
+            }
+        });
+    });
+    
+    // Clear cart
+    $('.clear-cart').click(function() {
+        if (confirm('Are you sure you want to clear your cart?')) {
+            $.ajax({
+                url: '{% url "cart_clear" %}',
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function() {
+                    location.reload();
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
