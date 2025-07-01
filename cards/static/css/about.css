@@ -1,121 +1,152 @@
-/* about.css - Complete Updated Styles */
+:root {
+    --amazon-orange: #FF9900;
+    --amazon-dark: #131921;
+    --amazon-light: #232F3E;
+    --amazon-gray: #EAEDED;
+    --amazon-gold: #FFD700;
+    --text-light: #f5f5f5;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Amazon Ember', Arial, sans-serif;
+    color: #333;
+    background-color: #fff;
+    line-height: 1.6;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
 
 /* Hero Section */
 .about-hero {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('../images/about/about-hero-bg.jpg');
-    background-size: cover;
-    background-position: center;
-    padding: 6rem 0;
-    margin-bottom: 3rem;
-}
-
-.about-hero h1 {
-    font-weight: 700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    animation: fadeInDown 1s ease;
-}
-
-.about-hero p {
-    font-size: 1.25rem;
-    max-width: 800px;
-    margin: 0 auto;
-    animation: fadeInUp 1s ease;
-}
-
-/* About Content Section */
-.about-section {
-    padding: 5rem 0;
-}
-
-.about-section h2 {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-bottom: 15px;
-}
-
-.about-section h2::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 60px;
-    height: 3px;
-    background: #3498db;
-}
-
-.about-section p {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: #555;
-    margin-bottom: 1.5rem;
-}
-
-.about-section img {
-    border-radius: 10px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-}
-
-.about-section img:hover {
-    transform: scale(1.02);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* Stats Section */
-.stats-section {
-    padding: 5rem 0;
-    background-color: #f8f9fa;
-}
-
-.stats-section h2 {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 3rem;
-}
-
-.stat-item {
-    transition: transform 0.3s ease;
-}
-
-.stat-item:hover {
-    transform: translateY(-10px);
-}
-
-.stat-number {
-    font-weight: 700;
-    color: #3498db;
-}
-
-/* Team Section - Updated */
-.team-section {
-    padding: 5rem 0;
-    background: #fff;
-}
-
-.team-section h2 {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 3rem;
-}
-
-.team-member {
-    transition: transform 0.3s ease;
-    overflow: hidden;
+    background: linear-gradient(to bottom, var(--amazon-dark), var(--amazon-light));
+    padding: 120px 0 80px;
+    color: var(--text-light);
     text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-badge {
+    background-color: var(--amazon-orange);
+    color: #111;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+    font-size: 0.95rem;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+/* Delivery Stats */
+.delivery-stats {
+    background-color: var(--amazon-gray);
+    padding: 60px 0;
+}
+
+.delivery-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 35px 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+    border-top: 5px solid var(--amazon-orange);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.delivery-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.delivery-highlight {
+    animation: highlight 2s ease-in-out infinite alternate;
+}
+
+@keyframes highlight {
+    from { box-shadow: 0 0 8px rgba(255, 153, 0, 0.5); }
+    to { box-shadow: 0 0 20px rgba(255, 153, 0, 0.85); }
+}
+
+.delivery-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--amazon-dark);
+    margin-bottom: 10px;
+}
+
+.delivery-number span {
+    color: var(--amazon-orange);
+}
+
+.delivery-label {
+    font-size: 1.2rem;
+    color: var(--amazon-light);
+    font-weight: 500;
+}
+
+.progress-container {
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    height: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background-color: var(--amazon-orange);
+    height: 100%;
+    border-radius: 5px;
+    width: 0;
+    transition: width 2s ease-in-out;
+}
+
+/* Cards */
+.amazon-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.amazon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+}
+
+.amazon-card-header {
+    background-color: var(--amazon-light);
+    color: #fff;
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Team Section */
+.team-section {
+    background-color: #f9f9f9;
+    padding: 80px 0;
 }
 
 .member-image {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
-    border-radius: 50%;
+    height: 300px;
     overflow: hidden;
-    border: 5px solid #f1f1f1;
+    border-radius: 8px 8px 0 0;
 }
 
 .member-image img {
@@ -125,109 +156,99 @@
     transition: transform 0.5s ease;
 }
 
-.team-member:hover .member-image img {
-    transform: scale(1.1);
-}
-
-.card-title {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-}
-
-.social-links {
-    margin-top: 1rem;
-}
-
-.social-links a {
-    display: inline-block;
-    width: 36px;
-    height: 36px;
-    background: #f1f1f1;
-    color: #555;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 36px;
-    margin: 0 5px;
-    transition: all 0.3s ease;
-}
-
-.social-links a:hover {
-    background: #3498db;
-    color: #fff;
-    transform: translateY(-3px);
-}
-
-/* Testimonials Images */
-.testimonials-section img {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
+.amazon-card:hover .member-image img {
+    transform: scale(1.05);
 }
 
 /* Animations */
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease-in-out;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-/* Responsive Adjustments */
-@media (min-width: 992px) {
-    /* PC पर बड़ा साइज़ */
-    .member-image {
-        width: 250px;
-        height: 250px;
-    }
-    
-    .about-section img {
-        max-height: 500px;
-    }
+.slide-in-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 0.6s ease-in-out;
 }
 
+.slide-in-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.slide-in-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.6s ease-in-out;
+}
+
+.slide-in-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* CTA Section */
+.bg-warning {
+    background-color: var(--amazon-orange) !important;
+    color: #000;
+}
+
+/* Utility Classes */
+.achievement-badge {
+    background-color: var(--amazon-gold);
+    color: #000;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.state-counter {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--amazon-orange);
+}
+
+.position-relative {
+    position: relative;
+}
+
+.position-absolute {
+    position: absolute;
+}
+
+.rounded {
+    border-radius: 10px !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Responsive Enhancements */
 @media (max-width: 768px) {
-    /* Mobile पर छोटा साइज़ */
-    .member-image {
-        width: 180px;
-        height: 180px;
-    }
-    
-    .about-hero h1 {
+    .delivery-number {
         font-size: 2.5rem;
     }
-    
-    .about-hero p {
-        font-size: 1.1rem;
-    }
-}
 
-@media (max-width: 576px) {
     .member-image {
-        width: 150px;
-        height: 150px;
+        height: 220px;
     }
-    
+
     .about-hero {
-        padding: 3rem 0;
+        padding: 80px 0 50px;
     }
-    
-    .about-hero h1 {
-        font-size: 2rem;
+
+    .amazon-card {
+        margin-bottom: 30px;
     }
 }
